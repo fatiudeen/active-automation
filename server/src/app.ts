@@ -23,6 +23,7 @@ class App {
       });
     });
   }
+
   private initMiddlewares() {
     this.app.use(
       cors({
@@ -39,6 +40,7 @@ class App {
 
   public listen(port: number) {
     this.app.listen(port, () => {
+      // eslint-disable-next-line no-console
       console.info(`running on port ${port}`);
     });
   }

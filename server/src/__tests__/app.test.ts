@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import supertest from 'supertest';
 import App from '../app';
 
@@ -27,7 +28,7 @@ describe('given a the automate route', () => {
 });
 describe('given a random route', () => {
   it('should throw a not found error', async () => {
-    const { statusCode, body } = await instance.get('/random');
+    const { statusCode } = await instance.get('/random');
 
     expect(statusCode).toBe(404);
   });

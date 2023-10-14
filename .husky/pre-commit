@@ -1,2 +1,2 @@
-npm run lint
-npm test
+cd server && npm run lint
+cd server && npm test

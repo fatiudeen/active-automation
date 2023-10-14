@@ -15,6 +15,7 @@
         "@typescript-eslint", "prettier"
     ],
     "rules": {
+      "import/extensions": "off",
       "prettier/prettier": ["error"]
     },
     "settings": {
