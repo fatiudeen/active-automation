@@ -7,7 +7,8 @@
     "test": "jest",
     "build": "tsc -p .",
     "dev": "ts-node src/index.ts",
-    "start": "node index.js"
+    "start": "node index.js",
+    "prepare": "cd .. && husky install"
   },
   "author": "Shehu-Fatiudeen O. Lawal",
   "license": "ISC",
@@ -24,6 +25,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^8.0.0",
     "jest": "^29.7.0",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
