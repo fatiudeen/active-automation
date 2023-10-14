@@ -1,0 +1,11 @@
+{
+  "name": "active-automation",
+  "version": "1.0.0",
+  "description": "automation of XYZ's cloud infrastructure",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Shehu-Fatiudeen O. Lawal",
+  "license": "ISC"
+}
