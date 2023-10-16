@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: -svc
+  labels:
+    app: active
+spec:
+  ports:
+   -  name: http
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+
+  selector:
+    app: active

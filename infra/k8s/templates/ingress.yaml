@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: active-ingress
+  annotations: 
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/client-max-body-size: '0'
+    nginx.ingress.kubernetes.io/proxy-body-size: '0'
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+
+spec:
+   rules:
+    - host: "*"
+      http:
+        paths:
+          - path: /(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: active-svc
+                port:
+                  number: 5000
+          

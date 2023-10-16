@@ -12,7 +12,7 @@ ENV NODE_ENV=production
 WORKDIR /usr/src/app
 USER root
 COPY package*.json ./
-RUN npm install --production --silent && mv node_modules ../
+RUN npm install --production --silent --ignore-scripts
 COPY --from=builder /usr/src/app/dist /usr/src/app/
 EXPOSE 5000
 # RUN chown -R node /usr/src/app
