@@ -130,3 +130,20 @@ dist
 .pnp.*
 
 to-do.txt
+
+.terraform
+.terraform/*
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.lock.info
+.terraform.lock.hcl
+.terraformrc
+.terraform.d/plugins/
+.terraform/providers/
+.terraform/environment
+.tfvars
+.terraform.tfvars
+override.tf
+override.tf.json
+infra/.terraform/modules/vpc/main.tf

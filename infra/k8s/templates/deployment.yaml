@@ -1,23 +1,22 @@
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: active-svc
+  name: active
   labels:
-    app: active-svc
+    app: active
 spec:
   selector:
     matchLabels:
-      app: active-svc
+      app: active
   replicas: 1
   template:
     metadata:
       labels:
-        app: active-svc
+        app: active
     spec:
       containers:
-      - name: active-svc 
+      - name: active 
         image: {{ .Values.image | b64enc }}
         imagePullPolicy: "Always"
         ports:
-        - containerPort: 5000
         - containerPort: 5000
