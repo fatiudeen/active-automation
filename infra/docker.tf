@@ -20,7 +20,7 @@ resource "null_resource" "build_and_push_to_ecr" {
 
     environment  = {
         AWS_REGION= local.region
-        ECR_REPOSITORY_URL= aws_ecr_repository.active-ecr.repository_url
+        ECR_REPOSITORY_URL= aws_ecrpublic_repository.active-ecr.repository_uri
         DOCKERFILE_PATH= "${path.module}/../server/"
     }
   }

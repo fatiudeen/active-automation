@@ -1,6 +1,6 @@
-resource "aws_ecr_repository" "active-ecr" {
-  name = "active-container"
-  force_delete = true
+resource "aws_ecrpublic_repository" "active-ecr" {
+  repository_name = "active-container"
+  # force_delete = true
   
   
 }
@@ -66,8 +66,8 @@ data "aws_iam_policy_document" "ecr-policy" {
   }
 }
 
-resource "aws_ecr_repository_policy" "ecr-policy" {
-  repository = aws_ecr_repository.active-ecr.name
+resource "aws_ecrpublic_repository_policy" "ecr-policy" {
+  repository_name = aws_ecrpublic_repository.active-ecr.repository_name
   policy     = data.aws_iam_policy_document.ecr-policy.json
   
 }

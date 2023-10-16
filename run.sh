@@ -2,54 +2,52 @@
 
 TF_DIR="./infra"
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 [deploy|clean]"
+if [ "$#" -lt 1 ]; then
+  echo "Usage: $0 [deploy|clean] [--aws_access_key=<ACCESS_KEY> --aws_secret_key=<SECRET_KEY>]"
   exit 1
 fi
 
-if [ -z "$aws_access_key" ] || [ -z "$aws_secret_key" ]; then
-  echo "AWS credentials (aws_access_key and aws_secret_key) are missing. Please provide them."
+# Default values for AWS credentials
+aws_access_key=""
+aws_secret_key=""
+
+for arg in "$@"; do
+  case "$arg" in
+    --aws_access_key=*)
+      aws_access_key="${arg#*=}"
+      ;;
+    --aws_secret_key=*)
+      aws_secret_key="${arg#*=}"
+      ;;
+  esac
+done
+
+if [ "$1" = "deploy" ] && ([ -z "$aws_access_key" ] && [ -z "$aws_secret_key" ]); then
+  echo "AWS credentials (aws_access_key and aws_secret_key) are missing. Please provide them using --aws_access_key=<value> and --aws_secret_key=<value>"
   exit 1
 fi
 
-# Check for AWS CLI
-if ! command -v aws &>/dev/null; then
-  echo "AWS CLI is not installed. Please install it before running this script."
+if [ "$1" = "deploy" ] && [ -z "$aws_access_key" ]; then
+  echo "AWS credentials (aws_access_key) are missing. Please provide it using --aws_access_key=<value>"
   exit 1
 fi
 
-# Check for kubectl
-if ! command -v kubectl &>/dev/null; then
-  echo "kubectl is not installed. Please install it before running this script."
+if [ "$1" = "deploy" ] && [ -z "$aws_secret_key" ]; then
+  echo "AWS credentials (aws_secret_key) are missing. Please provide it using --aws_secret_key=<value>"
   exit 1
 fi
 
-# Check for Helm
-if ! command -v helm &>/dev/null; then
-  echo "Helm is not installed. Please install it before running this script."
-  exit 1
-fi
-
-# Check for Docker
-if ! command -v docker &>/dev/null; then
-  echo "Docker is not installed. Please install it before running this script."
-  exit 1
-fi
 
 cd "$TF_DIR"
 
 if [ "$1" = "deploy" ]; then
-
   terraform init
-
-  terraform plan -out=../plan.tfstate
-
-  terraform apply "../plan.tfstate" -var="aws_access_key=$aws_access_key" -var="aws_secret_key=aws_secret_key"
+  terraform validate
+  terraform plan -out=../plan.tfstate -var="aws_access_key=$aws_access_key" -var="aws_secret_key=$aws_secret_key"
+  terraform apply "../plan.tfstate"
 elif [ "$1" = "clean" ]; then
-
   if [ -f "../plan.tfstate" ]; then
-    terraform destroy -state="../plan.tfstate"
-
+    terraform destroy -state="./terraform.tfstate"
     # rm -f "../plan.tfstate"
   fi
 else

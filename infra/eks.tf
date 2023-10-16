@@ -26,7 +26,7 @@ module "eks" {
     desired_size =1
     max_size= 1
     max_size =1
-    instance_types = ["t2.micro"]
+    instance_types = ["t2.small"]
 
     attach_cluster_primary_security_group = true
   }
@@ -37,7 +37,7 @@ module "eks" {
       max_size     = 1
       desired_size = 1
 
-      instance_types = ["t2.micro"]
+      instance_types = ["t2.small"]
       capacity_type  = "SPOT"
 
       tags = {
