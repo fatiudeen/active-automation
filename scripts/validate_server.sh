@@ -9,7 +9,7 @@ if [ -z "$external_ip" ]; then
   exit 1
 fi
 
-response=$(curl -s $external_ip:80)  
+response=$(curl -s $external_ip:80/automate)  
 
 if [ -z "$response" ]; then
   echo "Failed to access the test endpoint."
