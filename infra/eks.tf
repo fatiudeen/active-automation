@@ -21,24 +21,20 @@ module "eks" {
   subnet_ids               = module.vpc.private_subnets
   control_plane_subnet_ids = module.vpc.intra_subnets
 
-  eks_managed_node_group_defaults = {
-    ami_type       = "AL2_x86_64"
-    desired_size =1
-    max_size= 1
-    max_size =1
-    instance_types = ["t2.medium"]
-
-    attach_cluster_primary_security_group = true
-  }
-
   eks_managed_node_groups = {
-    active-cluster-wg = {
+    active-cluster-ng = {
       min_size     = 1
-      max_size     = 1
+      max_size     = 2
       desired_size = 1
 
-      instance_types = ["t2.medium"]
+      instance_types = ["t2.small"]
       capacity_type  = "SPOT"
+
+      disk_size                  = 50
+      iam_role_attach_cni_policy = true 
+
+      attach_cluster_primary_security_group = true
+      cluster_endpoint_private_access = true
 
       tags = {
         ExtraTag = "active-eks"
@@ -47,4 +43,5 @@ module "eks" {
   }
 
   tags = local.tags
+  
 }

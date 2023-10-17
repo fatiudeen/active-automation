@@ -2,10 +2,10 @@
 
 IFS="/" read -ra URL <<< "$ECR_REPOSITORY_URL"
 
-aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin "${URL[0]}"
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin  public.ecr.aws
 
-docker build $DOCKERFILE_PATH -t active-container:latest
+docker build $DOCKERFILE_PATH -t active-container-img:latest
 
-docker tag  "active-container:latest" "$ECR_REPOSITORY_URL:latest"
+docker tag  "active-image:latest" "$ECR_REPOSITORY_URL:latest"
 
 docker push "$ECR_REPOSITORY_URL:latest"

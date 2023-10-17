@@ -17,3 +17,8 @@ output "eks_arn" {
   description = "EKS ARN"
   value = module.eks.cluster_arn
 }
+
+output "account_id" {
+  description = "AWS account id"
+  value = data.aws_caller_identity.current.account_id
+}

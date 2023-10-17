@@ -1,5 +1,5 @@
 resource "aws_ecrpublic_repository" "active-ecr" {
-  repository_name = "active-container"
+  repository_name = "active-image"
   # force_delete = true
   
   
@@ -13,25 +13,35 @@ data "aws_partition" "current" {}
 
 
 resource "aws_iam_policy" "ecr_push_policy" {
-  name        = "ECR-Push-Policy"
+  name        = "ECR_Push_Policy"
   description = "IAM policy for pushing images to ECR"
   policy      = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
       {
-        "Effect": "Allow",
-        "Resource": "*",
-
-        "Action": [
-          "ecr:GetAuthorizationToken",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:PutImage"
-        ]
+         "Sid":"GetAuthorizationToken",
+         "Effect":"Allow",
+         "Action":[
+            "ecr-public:GetAuthorizationToken"
+         ],
+         "Resource":"*"
+      },
+      {
+         "Sid":"ManageRepositoryContents",
+         "Effect":"Allow",
+         "Action":[
+                "ecr-public:BatchCheckLayerAvailability",
+                "ecr-public:GetRepositoryPolicy",
+                "ecr-public:DescribeRepositories",
+                "ecr-public:DescribeImages",
+                "ecr-public:InitiateLayerUpload",
+                "ecr-public:UploadLayerPart",
+                "ecr-public:CompleteLayerUpload",
+                "ecr-public:PutImage"
+         ],
+         "Resource":"*"
       }
-    ]
+   ]
   })
 }
 
@@ -46,21 +56,16 @@ data "aws_iam_policy_document" "ecr-policy" {
     }
 
     actions = [
-
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchGetImage",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:PutImage",
-      "ecr:InitiateLayerUpload",
-      "ecr:UploadLayerPart",
-      "ecr:CompleteLayerUpload",
-      "ecr:DescribeRepositories",
-      "ecr:GetRepositoryPolicy",
-      "ecr:ListImages",
-      "ecr:DeleteRepository",
-      "ecr:BatchDeleteImage",
-      "ecr:SetRepositoryPolicy",
-      "ecr:DeleteRepositoryPolicy",
+      "ecr-public:GetAuthorizationToken",
+      "sts:GetServiceBearerToken",
+      "ecr-public:BatchCheckLayerAvailability",
+      "ecr-public:GetRepositoryPolicy",
+      "ecr-public:DescribeRepositories",
+      "ecr-public:DescribeRegistries",
+      "ecr-public:DescribeImages",
+      "ecr-public:DescribeImageTags",
+      "ecr-public:GetRepositoryCatalogData",
+      "ecr-public:GetRegistryCatalogData"
     ]
     
   }
@@ -72,8 +77,8 @@ resource "aws_ecrpublic_repository_policy" "ecr-policy" {
   
 }
 
-resource "aws_iam_role" "active-ecr-role" {
-  name = "active-ecr-role"
+resource "aws_iam_role" "ecr-active-role" {
+  name = "ecr-active-role"
 
   assume_role_policy = <<EOF
 {

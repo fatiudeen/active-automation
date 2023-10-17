@@ -11,4 +11,9 @@ aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION --profile de
 kubectl config use-context $EKS_ARN
  
 
-helm upgrade --install --debug active-depl -f $DEPL_PATH --set image "$IMAGE_URI"
+kubectl run acive-pod --image=$IMAGE_URI --port=5000
+
+sleep 30
+
+kubectl expose pod active-pod --type=LoadBalancer --name=active-svc --port=80 --target-port=80
+
