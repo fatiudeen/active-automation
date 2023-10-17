@@ -49,10 +49,9 @@ A pipeline to provision a kubernetes cluster on aws with terraform, build the se
 You need to have the following
 
 1. Docker
-2. AWS CLI
-2. Terraform CLI
-2. Helm
-2. Kubectl
+3. AWS CLI
+3. Terraform CLI
+4. Kubectl
 
 ---
 
@@ -70,9 +69,19 @@ You need to have the following
 ``` ./run.sh deploy --aws_access_key=<value> --aws_secret_key=<value> ```
 
 
-4. o clean up the pipeline run:
+4. To validate the provisioned environment:
+
+``` ./run.sh test env```
+
+5. To validate the service endpoint run:
+
+``` ./run.sh test app```
+
+6. To clean up the pipeline run:
 
 ``` ./run.sh clean```
+
+
 
 
 

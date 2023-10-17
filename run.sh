@@ -1,5 +1,37 @@
 #!/bin/bash
 
+check_command() {
+  command -v $1 >/dev/null 2>&1
+}
+
+if check_command docker; then
+  echo "Docker is installed."
+else
+  echo "Docker is not installed. Please install docker before continuing."
+  exit 1
+fi
+
+if check_command terraform; then
+  echo "Terraform is installed."
+else
+  echo "Terraform is not installed. Please install Terraform before continuing."
+  exit 1
+fi
+
+if check_command aws; then
+  echo "AWS CLI is installed."
+else
+  echo "AWS CLI is not installed. Please install the AWS CLI before continuing."
+  exit 1
+fi
+
+if check_command kubectl; then
+  echo "kubectl is installed."
+else
+  echo "kubectl is not installed. Please install kubectl before continuing."
+  exit 1
+fi
+
 TF_DIR="./infra"
 WORKING_DIR=$PWD
 
