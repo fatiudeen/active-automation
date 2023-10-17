@@ -45,8 +45,34 @@ if [ "$1" = "deploy" ]; then
   terraform validate
   terraform plan -out=../plan.tfstate -var="aws_access_key=$aws_access_key" -var="aws_secret_key=$aws_secret_key"
   terraform apply "../plan.tfstate"
+
+  ## build and push server to ecr
+
+  #set env
+  export ECR_REPOSITORY_URL= $(terraform output ecr_repository_url)
+  export AWS_REGION="us-esat-1"
+  export DOCKERFILE_PATH="./server/"
+
+  chmod u+x  ./scripts/build_and_push.sh
+  ./scripts/build_and_push.sh
+
+  ## deploy to k8s using helm
+
+  #set env
+  export DEPL_PATH="./k8s/"
+  export AWS_ACCESS_KEY_ID=$aws_access_key
+  export AWS_SECRET_ACCESS_KEY=$aws_secret_key
+  export CLUSTER_NAME=$(terraform output cluster_name)
+  export EKS_ARN=$(terraform output eks_arn)
+  export IMAGE_URI="$ECR_REPOSITORY_URL:latest"
+
+  chmod u+x  ./scripts/install.sh
+  ./scripts/install.sh
+
 elif [ "$1" = "clean" ]; then
   if [ -f "../plan.tfstate" ]; then
+    chmod u+x  ./scripts/uninstall.sh
+    ./scripts/uninstall.sh
     terraform destroy -state="./terraform.tfstate"
     # rm -f "../plan.tfstate"
   fi
