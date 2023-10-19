@@ -1,7 +1,5 @@
 resource "aws_ecrpublic_repository" "active-ecr" {
   repository_name = "active-image"
-  # force_delete = true
-  
   
 }
 

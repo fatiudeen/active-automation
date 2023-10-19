@@ -5,34 +5,34 @@ check_command() {
 }
 
 if check_command docker; then
-  echo "Docker is installed."
+  :
 else
   echo "Docker is not installed. Please install docker before continuing."
   exit 1
 fi
 
 if check_command terraform; then
-  echo "Terraform is installed."
+  :
 else
   echo "Terraform is not installed. Please install Terraform before continuing."
   exit 1
 fi
 
 if check_command aws; then
-  echo "AWS CLI is installed."
+  :
 else
   echo "AWS CLI is not installed. Please install the AWS CLI before continuing."
   exit 1
 fi
 
 if check_command kubectl; then
-  echo "kubectl is installed."
+  :
 else
   echo "kubectl is not installed. Please install kubectl before continuing."
   exit 1
 fi
 
-TF_DIR="./infra"
+TF_DIR="$PWD/infra"
 WORKING_DIR=$PWD
 
 if [ "$#" -lt 1 ]; then
@@ -74,10 +74,10 @@ fi
 cd "$TF_DIR"
 
 if [ "$1" = "deploy" ]; then
-  terraform init
-  terraform validate
-  terraform plan -var="aws_access_key=$aws_access_key" -var="aws_secret_key=$aws_secret_key"
-  terraform apply -auto-approve
+  terraform init || { echo "Terraform init failed"; exit 1; }
+  terraform validate || { echo "Terraform validation failed"; exit 1; }
+  terraform plan -var="aws_access_key=$aws_access_key" -var="aws_secret_key=$aws_secret_key" || { echo "Terraform plan failed"; exit 1; }
+  terraform apply -auto-approve || { echo "Terraform apply failed"; exit 1; }
 
   #set env
   ECR_REPOSITORY_URL=$(terraform output ecr_repository_url)
@@ -97,37 +97,43 @@ if [ "$1" = "deploy" ]; then
 
   ## build and push server to ecr
 
-  cd $WORKING_DIR
+  cd $WORKING_DIR || { echo "Failed to change to working directory"; exit 1; }
 
-  chmod u+x  ./scripts/build_and_push.sh
-  ./scripts/build_and_push.sh
+  chmod u+x  ./scripts/build_and_push.sh || { echo "Failed to make script executable"; exit 1; }
+  ./scripts/build_and_push.sh || { echo "Script failed"; exit 1; }
 
-  ## deploy to k8s using helm
 
-  cd $WORKING_DIR
+  cd $WORKING_DIR  || { echo "Failed to change to working directory"; exit 1; }
 
-  chmod u+x  ./scripts/install.sh
-  ./scripts/install.sh
+  chmod u+x  ./scripts/install.sh || { echo "Failed to make script executable"; exit 1; }
+  ./scripts/install.sh || { echo "Script failed"; exit 1; }
 
 elif [ "$1" = "clean" ]; then
-    chmod u+x  ./scripts/uninstall.sh
-    ./scripts/uninstall.sh
-    terraform destroy 
+    cd $WORKING_DIR  || { echo "Failed to change to working directory"; exit 1; }
+
+    chmod u+x  ./scripts/uninstall.sh || { echo "Failed to make script executable"; exit 1; }
+    ./scripts/uninstall.sh || { echo "Script failed"; exit 1; }
+
+    cd $$TF_DIR
+    terraform destroy || { echo "Terraform destroy failed"; exit 1; }
 elif [ "$1" = "test" ]; then
 
 
     CLUSTER_NAME=$(terraform output cluster_name)
     export CLUSTER_NAME="${CLUSTER_NAME//\"/}"
 
-    cd $WORKING_DIR
+    cd $WORKING_DIR || { echo "Failed to change to working directory"; exit 1; }
 
     if [ "$2" == "env" ]; then
       echo "Running the environment script..."
-      chmod +x ./scripts/validate_enviroment.sh
+      chmod +x ./scripts/validate_enviroment.sh || { echo "Failed to make script executable"; exit 1; }
       ./scripts/validate_enviroment.sh
     elif [ "$2" == "app" ]; then
       echo "Running the application script..."
-      chmod +x ./scripts/validate_server.sh
+
+      EXTERNAL_IP=$(terraform output cluster_endpoint)
+      export EXTERNAL_IP="${EXTERNAL_IP//\"/}"
+      chmod +x ./scripts/validate_server.sh || { echo "Failed to make script executable"; exit 1; }
       ./scripts/validate_server.sh
     else
       echo "Invalid argument. Use 'env' or 'app' as the argument after 'test'."
@@ -135,6 +141,6 @@ elif [ "$1" = "test" ]; then
     fi
 
 else
-  echo "Invalid argument. Use 'deploy' or 'clean'."
+  echo "Invalid argument. Use 'deploy', 'clean' or 'test'."
   exit 1
 fi

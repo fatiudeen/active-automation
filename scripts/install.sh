@@ -15,5 +15,5 @@ kubectl run acive-pod --image=$IMAGE_URI --port=5000
 
 sleep 30
 
-kubectl expose pod active-pod --type=LoadBalancer --name=active-svc --port=80 --target-port=80
+kubectl expose pod active-pod --type=LoadBalancer --name=active-svc --port=80 --target-port=5000
 

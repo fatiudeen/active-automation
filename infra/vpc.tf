@@ -1,6 +1,5 @@
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 4.0"
 
   name = local.name
   cidr = local.vpc_cidr
@@ -19,7 +18,11 @@ module "vpc" {
     "kubernetes.io/role/elb" = 1
   }
 
+
+  map_public_ip_on_launch = true
+
   enable_dns_hostnames = true
+  enable_dns_support = true
 
   manage_default_network_acl    = true
   default_network_acl_tags      = { Name = local.name}

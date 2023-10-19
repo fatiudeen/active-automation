@@ -2,14 +2,12 @@
 
 pod_name=active-pod
 
-external_ip=$(kubectl get pod $pod_name -o jsonpath='{.status.hostIP}')
-
-if [ -z "$external_ip" ]; then
+if [ -z "$EXTERNAL_IP" ]; then
   echo "External IP for pod $pod_name not found."
   exit 1
 fi
 
-response=$(curl -s $external_ip:80/automate)  
+response=$(curl -s $EXTERNAL_IP:5000/automate)  
 
 if [ -z "$response" ]; then
   echo "Failed to access the test endpoint."
