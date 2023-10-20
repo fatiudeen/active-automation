@@ -14,6 +14,10 @@
 <a  href="#installation">Installation</a>
 </li>
 
+<li>
+<a  href="#run-on-github-actions">CI/CD</a>
+</li>
+
 <li><a  href="#architecture">Architecture</a></li>
 <li><a  href="#next-steps">Next Steps</a></li>
 <li><a  href="#contact">Contact</a></li>
@@ -39,10 +43,11 @@ A pipeline to provision a kubernetes cluster on aws with terraform, build the se
 
 
 ---
+### INSTALLATION
 
-### PERQUISITES
+#### PERQUISITES
 
-You need to have the following
+You need to have the following installed:
 
 1. Docker
 3. AWS CLI
@@ -51,7 +56,7 @@ You need to have the following
 
 ---
 
-### INSTALLATION
+#### STEPS
   
 
 1. Clone this repository and open your terminal/command line app in the root folder
@@ -76,6 +81,33 @@ You need to have the following
 6. To clean up the pipeline run:
 
 ``` ./run.sh clean```
+
+---
+
+### RUN ON GITHUB ACTIONS
+
+#### PERQUISITES
+
+You need add the following secrets and variable:
+
+1. AWS_ACCESS_KEY_ID: Alongside, AWS_SECRET_ACCESS_KEY, they will be used to authorize the infrastructure provisioning, as well as authorizing ECR container push and getting the EKS kube_config file.
+
+2. AWS_SECRET_ACCESS_KEY
+3. EKS_ARN: the arn of the kubernetes cluster, will be used as the key to setting the kube_config as 
+4. ENCRYPTION_KEY: the purpose of an encryption key is so encrypt the state file and store it as a Github Action artifact.
+5. PUBLIC_ECR_REGISTRY_URI: the uri the containerized server will be pushed to.
+
+#### STEPS
+
+1. Fork this repository or Clone the repository.
+
+2. Add the secrets and variable mentioned above
+
+3. Change the CI/CD branch trigger to match the branch you want it to operate on.
+
+4. Push to the infra directory to provision the infrastructure.
+
+4. Push to the server directory to deploy the server
 
 ---
 
