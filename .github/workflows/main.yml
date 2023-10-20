@@ -1,0 +1,84 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  check-dir:
+    name: Check changed Directory
+    runs-on: ubuntu-latest
+    outputs:
+      server-changed: ${{ steps.changed-files.outputs.server_any_changed }}
+      infra-changed: ${{ steps.changed-files.outputs.infra_any_changed }}
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    
+    - name: Get Changed Files
+      id: changed-files
+      uses: tj-actions/changed-files@v37
+      with:
+        files_yaml: |
+          server:
+            - server/**
+          infra:
+            - infra/**
+
+  provisioning:
+        runs-on: ubuntu-latest
+        needs: [check-dir]
+        if: needs.check-dir.outputs.infra-changed == 'true'
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+          with: 
+            path: infra
+    
+        - name: Run Terraform and Persist State File as Artifact
+          uses: sturlabragason/terraform_state_artifact@v1
+          env:
+            aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+          with:
+            encryptionkey: ${{ secrets.ENCRYPTION_KEY }}
+            custom_apply_flags: -var="aws_access_key=$aws_access_key" -var="aws_secret_key=$aws_secret_key"
+  deploy:
+    needs: [check-dir]
+    if: needs.check-dir.outputs.server-changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with: 
+        path: server
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+        aws-region: us-east-1
+        role-session-name: github-actions 
+
+    - name: Configure kubectl
+      run: aws eks update-kubeconfig --name your-eks-cluster-name --region us-east-1
+
+    - name: Authenticate Docker with ECR
+      run: |
+        aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin  public.ecr.aws
+
+    - name: Build and push Docker image
+      env:
+        ECR_REGISTRY: ${{ vars.PUBLIC_ECR_REGISTRY_URI }}
+      run: |
+        docker build -t active-image:latest .
+        docker tag  active-image:latest $ECR_REPOSITORY_URL:latest
+        docker push $ECR_REGISTRY/active-image:latest
+
+    - name: Update Kubernetes deployment
+      run: |   # TODO: 
+        kubectl set image pod/active-pod active-image=$ECR_REGISTRY/active-image:latest 
