@@ -73,12 +73,12 @@ jobs:
 
     - name: Build and push Docker image
       env:
-        ECR_REGISTRY: ${{ vars.PUBLIC_ECR_REGISTRY_URI }}
+        ECR_REGISTRY: ${{ secrets.PUBLIC_ECR_REGISTRY_URI }}
       run: |
         docker build -t active-image:latest .
         docker tag  active-image:latest $ECR_REPOSITORY_URL:latest
         docker push $ECR_REGISTRY/active-image:latest
 
     - name: Update Kubernetes deployment
-      run: |   # TODO: 
+      run: |
         kubectl set image pod/active-pod active-image=$ECR_REGISTRY/active-image:latest 
