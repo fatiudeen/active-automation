@@ -80,7 +80,7 @@ You need to have the following installed:
 
 6. To clean up the pipeline run:
 
-``` ./run.sh clean```
+``` ./run.sh clean  --aws_access_key=<value> --aws_secret_key=<value> ```
 
 ---
 

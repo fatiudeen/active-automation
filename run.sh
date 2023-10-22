@@ -55,17 +55,17 @@ for arg in "$@"; do
   esac
 done
 
-if [ "$1" = "deploy" ] && ([ -z "$aws_access_key" ] && [ -z "$aws_secret_key" ]); then
+if ([ "$1" = "deploy" ] || [ "$1" = "clean" ]) && ([ -z "$aws_access_key" ] && [ -z "$aws_secret_key" ]); then
   echo "AWS credentials (aws_access_key and aws_secret_key) are missing. Please provide them using --aws_access_key=<value> and --aws_secret_key=<value>"
   exit 1
 fi
 
-if [ "$1" = "deploy" ] && [ -z "$aws_access_key" ]; then
+if ([ "$1" = "deploy" ] || [ "$1" = "clean" ]) && [ -z "$aws_access_key" ]; then
   echo "AWS credentials (aws_access_key) are missing. Please provide it using --aws_access_key=<value>"
   exit 1
 fi
 
-if [ "$1" = "deploy" ] && [ -z "$aws_secret_key" ]; then
+if ([ "$1" = "deploy" ] || [ "$1" = "clean" ]) && [ -z "$aws_secret_key" ]; then
   echo "AWS credentials (aws_secret_key) are missing. Please provide it using --aws_secret_key=<value>"
   exit 1
 fi
@@ -77,7 +77,7 @@ if [ "$1" = "deploy" ]; then
   terraform init || { echo "Terraform init failed"; exit 1; }
   terraform validate || { echo "Terraform validation failed"; exit 1; }
   terraform plan -var="aws_access_key=$aws_access_key" -var="aws_secret_key=$aws_secret_key" || { echo "Terraform plan failed"; exit 1; }
-  terraform apply -auto-approve || { echo "Terraform apply failed"; exit 1; }
+  terraform apply -auto-approve  -var="aws_access_key=$aws_access_key" -var="aws_secret_key=$aws_secret_key" || { echo "Terraform apply failed"; exit 1; }
 
   #set env
   ECR_REPOSITORY_URL=$(terraform output ecr_repository_url)
@@ -109,13 +109,27 @@ if [ "$1" = "deploy" ]; then
   ./scripts/install.sh || { echo "Script failed"; exit 1; }
 
 elif [ "$1" = "clean" ]; then
+
+    cd $TF_DIR
+
+
+    export AWS_REGION="us-east-1"
+    export AWS_ACCESS_KEY_ID=$aws_access_key
+    export AWS_SECRET_ACCESS_KEY=$aws_secret_key
+    CLUSTER_NAME=$(terraform output cluster_name)
+    export CLUSTER_NAME="${CLUSTER_NAME//\"/}"
+    EKS_ARN=$(terraform output eks_arn)
+    export EKS_ARN="${EKS_ARN//\"/}"
+
     cd $WORKING_DIR  || { echo "Failed to change to working directory"; exit 1; }
 
     chmod u+x  ./scripts/uninstall.sh || { echo "Failed to make script executable"; exit 1; }
     ./scripts/uninstall.sh || { echo "Script failed"; exit 1; }
 
-    cd $$TF_DIR
-    terraform destroy || { echo "Terraform destroy failed"; exit 1; }
+    cd $TF_DIR
+    terraform destroy -auto-approve  -var="aws_access_key=$aws_access_key" -var="aws_secret_key=$aws_secret_key" || { echo "Terraform destroy failed"; exit 1; }
+    echo "Cleanup completed"
+
 elif [ "$1" = "test" ]; then
 
 
@@ -131,8 +145,6 @@ elif [ "$1" = "test" ]; then
     elif [ "$2" == "app" ]; then
       echo "Running the application script..."
 
-      EXTERNAL_IP=$(terraform output cluster_endpoint)
-      export EXTERNAL_IP="${EXTERNAL_IP//\"/}"
       chmod +x ./scripts/validate_server.sh || { echo "Failed to make script executable"; exit 1; }
       ./scripts/validate_server.sh
     else

@@ -11,7 +11,7 @@ aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION --profile de
 kubectl config use-context $EKS_ARN
  
 
-kubectl run acive-pod --image=$IMAGE_URI --port=5000
+kubectl run active-pod --image=$IMAGE_URI --port=5000
 
 sleep 30
 

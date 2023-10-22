@@ -42,13 +42,11 @@ module "eks" {
     }
   }
 
+  node_security_group_tags = {
+    "kubernetes.io/cluster/${local.name}" = null   
+  }
+
   tags = local.tags
-  depends_on = [
-    aws_iam_role_policy_attachment.aws_eks_cluster_policy,
-    aws_iam_role_policy_attachment.aws_eks_worker_node_policy,
-    aws_iam_role_policy_attachment.aws_eks_cni_policy,
-    aws_iam_role_policy_attachment.ec2_read_only,
-  ]
   
 }
 

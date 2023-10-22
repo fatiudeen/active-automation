@@ -1,9 +1,9 @@
 variable "aws_access_key" {
   description = "AWS Access Key"
-  default     = ""
+  # default     = ""
 }
 
 variable "aws_secret_key" {
   description = "AWS Secret Key"
-  default     = ""
+  # default     = ""
 }
