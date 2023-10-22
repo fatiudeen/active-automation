@@ -19,6 +19,7 @@ class App {
     this.app.get('/automate', (req, res) => {
       res.status(200).json({
         message: 'Automate all the things!',
+        success: true,
         timestamp: Date.now(),
       });
     });
